@@ -54,11 +54,6 @@ let lgyyhd = $.getdata('lgyyhd')
 let lgyybody = $.getdata('lgyybody')
 let lgyykey = '',id = '',uid='',tid='',name=''
 
-if(!$.isNode()&&lgyyhd.indexOf("\n") ==-1){
-    lgyyurlArr.push($.getdata('lgyyurl'))
-    lgyyhdArr.push($.getdata('lgyyhd'))
-    lgyybodyArr.push($.getdata('lgyybody'))
-} else {
     if($.isNode()){
     if (process.env.LGYY_HD && process.env.LGYY_HD.indexOf('\n') > -1) {
         lgyyhd = process.env.LGYY_HD.split('\n');
@@ -74,13 +69,8 @@ if(!$.isNode()&&lgyyhd.indexOf("\n") ==-1){
         lgyybody = process.env.LGYY_BODY.split('\n');
     } else {
         lgyybody = [process.env.LGYY_BODY]
-    };
-    console.log(` ============脚本执行 - 北京时间 (UTC + 8)：${new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString()} =============\n`);
- } else if(!$.isNode()&&lgyyhd.indexOf("\n")>-1){
-   lgyyhd = lgyyhd.split("\n")
-   lgyyurl = lgyyurl.split("\n")
-   lgyybody = lgyybody.split("\n")
-};
+    }
+   
     Object.keys(lgyyhd).forEach((item) =>{
         if (lgyyhd[item]) {
         lgyyhdArr.push(lgyyhd[item])

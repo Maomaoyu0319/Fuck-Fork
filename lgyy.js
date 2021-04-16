@@ -91,9 +91,9 @@ let lgyykey = '',id = '',uid='',tid='',name=''
   if (typeof $request !== "undefined") {
     await lgyyck()
    
-  } else {//lgyyurlArr.push($.getdata('lgyyurl'))
-    //lgyyhdArr.push($.getdata('lgyyhd'))
-    //lgyybodyArr.push($.getdata('lgyybody'))
+  } else {lgyyurlArr.push($.getdata('lgyyurl'))
+    lgyyhdArr.push($.getdata('lgyyhd'))
+    lgyybodyArr.push($.getdata('lgyybody'))
     let lgyycount = ($.getval('lgyycount') || '1');
   for (let i = 2; i <= lgyycount; i++) {
     lgyyurlArr.push($.getdata(`lgyyurl${i}`))

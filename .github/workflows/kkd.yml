@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          repository: Ariszy/Private-Script
+          repository: Ariszy/script
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -34,7 +34,7 @@ jobs:
           npm install
       - name: '运行 【快看点】'
         run: |
-          node Scripts/kkd.js
+          node kkd.js
         env:
           KKDHEADER: ${{ secrets.KKDHEADER }}
           KKDCOOKIE: ${{ secrets.KKDCOOKIE }}

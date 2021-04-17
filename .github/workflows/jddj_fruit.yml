@@ -38,5 +38,5 @@ jobs:
       - name: '运行 【到家水果】'
         run: |
           cd ~/JD-PLUS
-          node JD/jddj_fruit.js
+          node JD/jddj_getPoints.js
         

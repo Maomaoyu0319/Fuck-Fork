@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: jddj_fruit.js
+name: 到家水果
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout
         run: |
-          git clone -b passerby-b https://github.com/Maomaoyu0319/JD-PLUS.git ~/jd_scripts
+          git clone -b passerby-b https://github.com/Maomaoyu0319/JD-PLUS.git ~/JD-PLUS
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -35,7 +35,7 @@ jobs:
         run: |
           cd ~/JD-PLUS
           npm install
-      - name: '运行 【京东汽车】'
+      - name: '运行 【到家水果】'
         run: |
           cd ~/JD-PLUS
           node JD/jddj_fruit.js

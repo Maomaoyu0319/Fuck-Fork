@@ -6,7 +6,7 @@ name: 易趣牛帮
 on:
   workflow_dispatch:
   schedule:
-     - cron: '7 0-12,23 * * *'
+     - cron: '5,25 0-12,23 * * *'
   watch:
     types: started
 jobs:

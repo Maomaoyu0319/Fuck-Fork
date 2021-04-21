@@ -3,10 +3,10 @@
 更新时间：2021-04-16 @肥皂
 脚本说明：云扫码自动阅读
 脚本为自动完成云扫码的阅读任务
-每日收益1.5元左右，可多号撸。提现秒到
+每日收益1.5元左右，可多号撸。提现秒到。
 可以多个阅读平台同时跑脚本，如番茄看看和微客众智
 
-任务打开二维码地址 https://ae01.alicdn.com/kf/U1f724e1a9fff4d5b8501e7637dea2e25H.jpg
+任务打开二维码地址 https://ae01.alicdn.com/kf/Ufc6bb87a11db40af80dfcece47ffc3494.jpg
 微信扫描打开
 
 可以先点阅读任务旁边的关注任务,关注三个公众号先提现三毛再说
@@ -73,7 +73,7 @@ let ysm = require('./ysm.json');
 let needNotice = $.getval('ysmNotice') == 'true'
 let ysmBanfirstTask = $.getval('ysmBanfirstTask') == 'true' // 禁止脚本执行首个任务，避免每日脚本跑首次任务导致微信限制
 let ysmBanhalfTask = $.getval('ysmBanhalfTask') == 'true' // 脚本执行完第50个任务时退出任务，再手动阅读2篇避免出现微信限制
-let ysmtxAmt = ($.getval('ysmtxAmt') || '10000') - 0  // 此处修改提现金额，0.3元等于3000币，默认不提现
+let ysmtxAmt = ($.getval('ysmtxAmt') || '0') - 0  // 此处修改提现金额，0.3元等于3000币，默认不提现
 ysmtxAmt = ysmtxAmt > 3000 ? (parseInt(ysmtxAmt / 1000) * 1000) : ysmtxAmt > 0 ? 3000 : 0
 let concurrency = ($.getval('ysmConcurrency') || '1') - 0 // 并发执行任务的账号数，默单账号循环执行
 concurrency = concurrency < 1 ? 1 : concurrency
@@ -410,8 +410,8 @@ function ysm1(ac, count) {
           const result = JSON.parse(data)
           if (result.errcode == 0 && result.data && result.data.link) {
             $.log(`\n🌝账号${ac.no}获取key回执成功，第${count}次跳转观看💦`)
-            let jumpLink = (result.data.link.match(/redirect_uri=(.*?)(&|#wechat_redirect|$)/) || ['', result.data.link])[1]
-            let jumpObj = await ysm2(ac, unescape(jumpLink) + '?/', 1)
+            let jumpLink = (result.data.link.match(/redirect_uri=(.*?)#wechat_redirect/) || ['', result.data.link])[1]
+            let jumpObj = await ysm2(ac, unescape(jumpLink) , 1)
             if (jumpObj) {
               let time = parseInt(Math.random() * (11 - 9 + 1) + 9, 10)
               $.log(`🌝账号${ac.no}等待${time}秒后提交本次观看任务`)

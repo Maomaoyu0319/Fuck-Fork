@@ -6,7 +6,7 @@ name: 蒙牛有机牧场
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '35 */2 * * *'
   watch:
     types: started
   repository_dispatch:

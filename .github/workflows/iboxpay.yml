@@ -6,7 +6,7 @@ name: 笑谱
 on:
   workflow_dispatch:
   schedule:
-     - cron: '15 */2 * * *'
+     - cron: '15 1-15/2 * * *'
   watch:
     types: started
 jobs:

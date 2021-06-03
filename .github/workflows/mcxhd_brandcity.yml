@@ -6,7 +6,7 @@ name: 新潮品牌狂欢
 on:
   workflow_dispatch:
   schedule:
-    - cron: '5 1,2 1-18 6'
+    - cron: '5 1,2 1-18 6 *'
   watch:
     types: started
   repository_dispatch:

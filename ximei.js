@@ -4,11 +4,11 @@
 脚本说明：西梅自动任务
 脚本为自动完成西梅的阅读任务
 5.25更新。加入视频任务。现在每天可撸2.05元。
+6.24更新。加入签到任务。
 
 
 扫码打开 https://ae01.alicdn.com/kf/U8c71c1ac1f47422788561b0be3d4ea2ah.jpg
 微信扫码打开可领红包
-
 
 
 本脚本以学习为主！
@@ -18,7 +18,7 @@ TG电报群: https://t.me/hahaha8028
 
 4.3更新西梅加入自动提现功能,不用再去微信提现了,请确保自己的账号已绑定微信
 5.25更新加入视频任务
-boxjs地址 :  
+boxjs地址 :
 
 https://raw.githubusercontent.com/age174/-/main/feizao.box.json
 
@@ -34,23 +34,15 @@ https://raw.githubusercontent.com/age174/-/main/feizao.box.json
 #西梅
 https://app.hubonews.com/.+/articles/list url script-request-body https://raw.githubusercontent.com/age174/-/main/ximei.js
 
-
-
 #loon
 https://app.hubonews.com/.+/articles/list script-path=https://raw.githubusercontent.com/age174/-/main/ximei.js, requires-body=true, timeout=10, tag=西梅
 
-
-
 #surge
-
 西梅 = type=http-request,pattern=https://app.hubonews.com/.+/articles/list,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/age174/-/main/ximei.js,script-update-interval=0
-
-
 
 
 [MITM]
 hostname = app.hubonews.com
-
 
 */
 
@@ -62,7 +54,7 @@ let times = Math.round(Date.now())
 let ximeiurl = $.getdata('ximeiurl')
 let ximeihd = $.getdata('ximeihd')
 let st = '@123hb#*^&xiMEI99'
-let ximeikey = '',id = '',uid='',tid='',name='',uuid=''
+let ximeikey = '',id = '',uid='',tid='',name='',uuid='',todayV=''
 
 if(!$.isNode()&&ximeihd.indexOf("\n") ==-1){
     ximeiurlArr.push($.getdata('ximeiurl'))
@@ -98,265 +90,351 @@ if(!$.isNode()&&ximeihd.indexOf("\n") ==-1){
 }
 
 !(async () => {
-  if (typeof $request !== "undefined") {
-    await ximeick()
-   
-  } else {//ximeiurlArr.push($.getdata('ximeiurl'))
-    //ximeihdArr.push($.getdata('ximeihd'))
-    let ximeicount = ($.getval('ximeicount') || '1');
-  for (let i = 2; i <= ximeicount; i++) {
-    ximeiurlArr.push($.getdata(`ximeiurl${i}`))
-    ximeihdArr.push($.getdata(`ximeihd${i}`))
-  }
-    console.log(`------------- 共${ximeihdArr.length}个账号-------------\n`)
-      for (let i = 0; i < ximeihdArr.length; i++) {
-        if (ximeihdArr[i]) {
-         
-          ximeiurl = ximeiurlArr[i];
-          ximeihd = ximeihdArr[i];
-          $.index = i + 1;
-          console.log(`\n开始【西梅${$.index}】`)
-          await ximei1()
-          await ximeiid();
-          await ximeixx()
+    if (typeof $request !== "undefined") {
+        await ximeick()
 
-  }
-}}
+    } else {//ximeiurlArr.push($.getdata('ximeiurl'))
+        //ximeihdArr.push($.getdata('ximeihd'))
+        let ximeicount = ($.getval('ximeicount') || '1');
+        for (let i = 2; i <= ximeicount; i++) {
+            ximeiurlArr.push($.getdata(`ximeiurl${i}`))
+            ximeihdArr.push($.getdata(`ximeihd${i}`))
+        }
+        console.log(`------------- 共${ximeihdArr.length}个账号-------------\n`)
+        for (let i = 0; i < ximeihdArr.length; i++) {
+            if (ximeihdArr[i]) {
+
+                ximeiurl = ximeiurlArr[i];
+                ximeihd = ximeihdArr[i];
+                $.index = i + 1;
+                console.log(`\n开始【西梅${$.index}】`)
+                //签到
+                await signinInfo()
+                //文章
+                await ximei1()
+                //视频
+                // await ximeiid();
+                //提现
+                await ximeixx()
+
+            }
+        }}
 
 })()
-  .catch((e) => $.logErr(e))
-  .finally(() => $.done())
+    .catch((e) => $.logErr(e))
+    .finally(() => $.done())
+
 //西梅数据获取
-
-
 function ximeick() {
-   if ($request.url.indexOf("list") > -1) {
- const ximeiurl = $request.url
-  if(ximeiurl)     $.setdata(ximeiurl,`ximeiurl${status}`)
-    $.log(ximeiurl)
-  const ximeihd = JSON.stringify($request.headers)
+    if ($request.url.indexOf("list") > -1) {
+        const ximeiurl = $request.url
+        if(ximeiurl)     $.setdata(ximeiurl,`ximeiurl${status}`)
+        $.log(ximeiurl)
+        const ximeihd = JSON.stringify($request.headers)
         if(ximeihd)    $.setdata(ximeihd,`ximeihd${status}`)
-$.log(ximeihd)
-   $.msg($.name,"",'西梅'+`${status}` +'数据获取成功！')
-  }
+        $.log(ximeihd)
+        $.msg($.name,"",'西梅'+`${status}` +'数据获取成功！')
+    }
 }
 
+//西梅签到信息
+function signinInfo(timeout = 0) {
+    return new Promise((resolve) => {
 
+        let url = {
+            url : "https://app.hubonews.com/v1/activity/signin/record?month=",
+            headers : JSON.parse(ximeihd),
+            body :``,
+        }
+        $.get(url, async (err, resp, data) => {
+
+            try {
+                const result = JSON.parse(data)
+
+                if(result.code == 0){
+                    const totalSingValue = "\n您已累计签到获得" + result.data.total_award_credits + "梅子"
+                    const totalSingDay = "\n您已签到" + result.data.total_days + "天"
+                    console.log(totalSingValue + totalSingDay)
+
+                   let dataArr = result.data.sign_record_list
+                    for (const elem of dataArr) {
+                        // console.log(elem);
+                        if (elem.today == true) {
+                            todayV = elem.award_text
+                            console.log("\n今日签到可获得梅子" + todayV)
+                        }
+                    }
+
+                    //let singStaus = "签到状态" + result.data.status
+                    if(result.data.status == 0){
+                        let sigStaus = "\n签到状态 : 今日未签到"
+                        console.log(sigStaus + "\n开始签到")
+                        await signin()
+                        await $.wait(1000);
+                    }else {
+                        let sigStaus = "\n签到状态 : 今日已签到"
+                        console.log(sigStaus + "\n===> 获得梅子" + todayV)
+                        await $.wait(1000);
+                    }
+
+                } else {
+                    console.log('\n西梅签到失败  '+data)
+                    await $.wait(1000);
+
+                }
+
+            } catch (e) {
+                //$.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        },timeout)
+    })
+}
+//西梅签到
+function signin(timeout = 0) {
+    return new Promise((resolve) => {
+
+        let url = {
+            url : "https://app.hubonews.com/v1/activity/signin",
+            headers : JSON.parse(ximeihd),
+            body :`{}`,
+        }
+        $.post(url, async (err, resp, data) => {
+
+            try {
+                const result = JSON.parse(data)
+
+                if(result.code == 0){
+                    console.log('\n西梅签到成功 + '+ result.data.add_credits )
+                    await $.wait(1000);
+                } else {
+                    console.log('\n西梅签到失败  '+data)
+                    await $.wait(1000);
+                }
+
+            } catch (e) {
+                //$.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        },timeout)
+    })
+}
 
 //西梅文章列表
 function ximei1(timeout = 0) {
-  return new Promise((resolve) => {
-    setTimeout( ()=>{
-      /*if (typeof $.getdata('ximeihd') === "undefined") {
-        $.msg($.name,"",'请先获取西梅数据!😓',)
-        $.done()
-      }
+    return new Promise((resolve) => {
+        setTimeout( ()=>{
+            /*if (typeof $.getdata('ximeihd') === "undefined") {
+                $.msg($.name,"",'请先获取西梅数据!😓',)
+                $.done()
+            }
 */
 
-let url = {
-        url : "https://app.hubonews.com/v3/articles/list",
-        headers : JSON.parse(ximeihd),
-        body : `{"limit": 20,"page": 1}`,
-}
-      $.post(url, async (err, resp, data) => {
-        try {
-          //console.log(data)
-    const result = JSON.parse(data)
-        if(result.code == 0){
-id = result.data[0].data.articleId
-name = result.data[0].data.translatedTitle
-        console.log(`\n西梅获取文章列表成功\n文章ID:${id}\n文章标题:${name}\n执行阅读任务`) 
-await ximeiyd()
-        
-} else {
-console.log('西梅获取用户信息失败 已停止当前账号运行!')
+            let url = {
+                url : "https://app.hubonews.com/v3/articles/list",
+                headers : JSON.parse(ximeihd),
+                body : `{"limit": 20,"page": 1}`,
+            }
+            $.post(url, async (err, resp, data) => {
+                try {
+                    //console.log(data)
+                    const result = JSON.parse(data)
+                    if(result.code == 0){
+                        id = result.data[0].data.articleId
+                        name = result.data[0].data.translatedTitle
+                        console.log(`\n西梅获取文章列表成功\n文章ID:${id}\n文章标题:${name}\n执行阅读任务`)
+                        await ximeiyd()
 
-}
-        } catch (e) {
-          //$.logErr(e, resp);
-        } finally {
-          resolve()
-        }
-      })
-    },timeout)
-  })
-}
+                    } else {
+                        console.log('西梅获取用户信息失败 已停止当前账号运行!')
 
+                    }
+                } catch (e) {
+                    //$.logErr(e, resp);
+                } finally {
+                    resolve()
+                }
+            })
+        },timeout)
+    })
+}
 
 //西梅用户id
 function ximeiid(timeout = 0) {
-  return new Promise((resolve) => {
+    return new Promise((resolve) => {
 
-let url = {
-        url : "https://app.hubonews.com/v1/activity/tasks",
-        headers : JSON.parse(ximeihd),
-        
-}
-      $.get(url, async (err, resp, data) => {
+        let url = {
+            url : "https://app.hubonews.com/v1/activity/tasks",
+            headers : JSON.parse(ximeihd),
 
-        try {
-    const result = JSON.parse(data)
-
-        if(result.code == 0){
-uuid = result.data.user_id
-        console.log('\n西梅用户id获取成功:'+uuid+'执行视频任务')
-   
-        
-      for (let i = 1; i < 21; i++) {
-$.log('\n执行第'+i+'次视频任务,共20次')
-        await $.wait(200);
-        await ximeisp();
-}
-} else {
-       console.log('\n西梅用户id失败  '+result.msg)
-await $.wait(1000);
-        await ximeipl();
-}
-   
-        } catch (e) {
-          //$.logErr(e, resp);
-        } finally {
-          resolve()
         }
-    },timeout)
-  })
+        $.get(url, async (err, resp, data) => {
+
+            try {
+                const result = JSON.parse(data)
+
+                if(result.code == 0){
+                    uuid = result.data.user_id
+                    console.log('\n西梅用户id获取成功:'+uuid+'执行视频任务')
+
+
+                    for (let i = 1; i < 21; i++) {
+                        $.log('\n执行第'+i+'次视频任务,共20次')
+                        await $.wait(200);
+                        await ximeisp();
+                    }
+                } else {
+                    console.log('\n西梅用户id失败  '+result.msg)
+                    await $.wait(1000);
+                    await ximeipl();
+                }
+
+            } catch (e) {
+                //$.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        },timeout)
+    })
 }
 
 //西梅任务视频
 function ximeisp(timeout = 0) {
-  return new Promise((resolve) => {
+    return new Promise((resolve) => {
 
-let url = {
-        url : "http://app.qubiankeji.com:8084/callbacks/v1/reward",
-        headers : JSON.parse(ximeihd),
-       body :`{"positionId":"1391594488677285923","reward":true,"userKey":"${uuid}"}`,
-}
-      $.post(url, async (err, resp, data) => {
-
-        try {
-    
-
-        if(resp.statusCode == 200){
-
-        console.log('\n西梅视频观看成功')
-        await $.wait(1000);
-        
-} else {
-       console.log('\n西梅视频观看失败  '+data)
-await $.wait(1000);
-       
-}
-   
-        } catch (e) {
-          //$.logErr(e, resp);
-        } finally {
-          resolve()
+        let url = {
+            url : "http://app.qubiankeji.com:8084/callbacks/v1/reward",
+            headers : JSON.parse(ximeihd),
+            body :`{"positionId":"1391594488677285923","reward":true,"userKey":"${uuid}"}`,
         }
-    },timeout)
-  })
+        $.post(url, async (err, resp, data) => {
+
+            try {
+
+
+                if(resp.statusCode == 200){
+
+                    console.log('\n西梅视频观看成功')
+                    await $.wait(1000);
+
+                } else {
+                    console.log('\n西梅视频观看失败  '+data)
+                    await $.wait(1000);
+
+                }
+
+            } catch (e) {
+                //$.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        },timeout)
+    })
 }
 
 //西梅任务阅读
 function ximeiyd(timeout = 0) {
-  return new Promise((resolve) => {
-tid = md5(`action_time=${times}&action_type=101&business_id=${id}&secret=${st}`)
-let url = {
-        url : "https://app.hubonews.com/v1/activity/points/update",
-        headers : JSON.parse(ximeihd),
-        body : `{"sign":"${tid}","action_time":${times},"business_id":"${id}","action_type": 101}`,
-}
-      $.post(url, async (err, resp, data) => {
-
-        try {
-    const result = JSON.parse(data)
-
-        if(result.code == 0){
-
-        console.log('\n西梅阅读成功,获得梅子:'+result.data.point)
-        await $.wait(1000);
-        await ximei1();
-} else {
-       console.log('\n西梅阅读失败  '+result.msg)
-await $.wait(1000);
-        
-}
-   
-        } catch (e) {
-          //$.logErr(e, resp);
-        } finally {
-          resolve()
+    return new Promise((resolve) => {
+        tid = md5(`action_time=${times}&action_type=101&business_id=${id}&secret=${st}`)
+        let url = {
+            url : "https://app.hubonews.com/v1/activity/points/update",
+            headers : JSON.parse(ximeihd),
+            body : `{"sign":"${tid}","action_time":${times},"business_id":"${id}","action_type": 101}`,
         }
-    },timeout)
-  })
+        $.post(url, async (err, resp, data) => {
+
+            try {
+                const result = JSON.parse(data)
+
+                if(result.code == 0){
+
+                    console.log('\n西梅阅读成功,获得梅子:'+result.data.point)
+                    await $.wait(1000);
+                    await ximei1();
+                } else {
+                    console.log('\n西梅阅读失败  '+result.msg)
+                    await $.wait(1000);
+
+                }
+
+            } catch (e) {
+                //$.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        },timeout)
+    })
 }
 
 
 
 //西梅信息
 function ximeixx(timeout = 0) {
-  return new Promise((resolve) => {
-let url = {
-        url : "https://app.hubonews.com/v1/activity/tasks",
-        headers : JSON.parse(ximeihd),
-        
-}
-      $.get(url, async (err, resp, data) => {
+    return new Promise((resolve) => {
+        let url = {
+            url : "https://app.hubonews.com/v1/activity/tasks",
+            headers : JSON.parse(ximeihd),
 
-        try {
-    const result = JSON.parse(data)
-
-        if(result.code == 0){
-
-        console.log('\n西梅用户信息获取成功\n当前梅子:'+result.data.point+'\n当前金币:'+result.data.coin)
-if(result.data.point >=100){
-$.log('西梅-检测到当前梅子可提现,执行提现任务')
-await ximeitx();
-}
-        
-} else {
-       console.log('\n西梅用户信息获取失败  '+result.msg)
-}
-   
-        } catch (e) {
-          //$.logErr(e, resp);
-        } finally {
-          resolve()
         }
-    },timeout)
-  })
+        $.get(url, async (err, resp, data) => {
+
+            try {
+                const result = JSON.parse(data)
+
+                if(result.code == 0){
+
+                    console.log('\n西梅用户信息获取成功\n当前梅子:'+result.data.point+'\n当前金币:'+result.data.coin)
+                    if(result.data.point >=100){
+                        $.log('西梅-检测到当前梅子可提现,执行提现任务')
+                        await ximeitx();
+                    }
+
+                } else {
+                    console.log('\n西梅用户信息获取失败  '+result.msg)
+                }
+
+            } catch (e) {
+                //$.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        },timeout)
+    })
 }
 
 //西梅任务提现
 function ximeitx(timeout = 0) {
-  return new Promise((resolve) => {
+    return new Promise((resolve) => {
 
-let url = {
-        url : "https://app.hubonews.com/v1/credit/cashout/apply",
-        headers : JSON.parse(ximeihd),
-        body : `{"cashout_credits":100,"assets_type":0}`,
-}
-      $.post(url, async (err, resp, data) => {
-
-        try {
-    const result = JSON.parse(data)
-
-        if(result.code == 0){
-
-        console.log('\n西梅提现成功:'+result.data.order_status)
-
-        
-} else {
-       console.log('\n西梅提现失败  '+result.msg)
-
-}
-   
-        } catch (e) {
-          //$.logErr(e, resp);
-        } finally {
-          resolve()
+        let url = {
+            url : "https://app.hubonews.com/v1/credit/cashout/apply",
+            headers : JSON.parse(ximeihd),
+            body : `{"cashout_credits":100,"assets_type":0}`,
         }
-    },timeout)
-  })
+        $.post(url, async (err, resp, data) => {
+
+            try {
+                const result = JSON.parse(data)
+
+                if(result.code == 0){
+
+                    console.log('\n西梅提现成功:'+result.data.order_status)
+
+
+                } else {
+                    console.log('\n西梅提现失败  '+result.msg)
+
+                }
+
+            } catch (e) {
+                //$.logErr(e, resp);
+            } finally {
+                resolve()
+            }
+        },timeout)
+    })
 }
 
 
